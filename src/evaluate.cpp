@@ -791,7 +791,7 @@ namespace {
 template<bool DoTrace>
 Value Eval::evaluate(const Position& pos) {
 
-  assert(!pos.checkers());
+  //assert(!pos.checkers());
 
   Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
   EvalInfo ei;
@@ -891,6 +891,17 @@ template Value Eval::evaluate<false>(const Position&);
 /// trace() is like evaluate(), but instead of returning a value, it returns
 /// a string (suitable for outputting to stdout) that contains the detailed
 /// descriptions and values of each evaluation term. Useful for debugging.
+Value Eval::traceOnlyScore(const Position& pos) {
+
+	std::memset(scores, 0, sizeof(scores));
+
+	Value v = evaluate<true>(pos);
+	v = pos.side_to_move() == WHITE ? v : -v; // White's point of view
+
+	//std::stringstream ss;
+	//v = to_cp(v);
+	return v;
+}
 
 std::string Eval::trace(const Position& pos) {
 

@@ -17,6 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <fstream>
 
 #include <iostream>
 #include <sstream>
@@ -138,6 +139,25 @@ namespace {
 
 } // namespace
 
+void generateFenScore()
+{
+	std::ifstream infile("C:/Development/Stockfish/src/Fen/0.fen", ios_base::in);
+	std::ofstream outFile("C:/Development/Stockfish/src/Fen/0out.csv");
+	if (!infile) std::cout << "not read" << std::endl;
+	Position pos;
+	pos.set(StartFEN, false, &States->back(), Threads.main());
+	std::string fen;
+	while (std::getline(infile, fen))
+	{
+		std::istringstream iss(fen);
+		std::cout << fen << std::endl;
+		States = StateListPtr(new std::deque<StateInfo>(1));
+		pos.set(fen, false, &States->back(), Threads.main());
+		string v_str = UCI::value(Eval::traceOnlyScore(pos));
+		std::cout<< v_str <<std::endl;
+		outFile<<fen<<","<< v_str <<std::endl;
+	}
+}
 
 /// UCI::loop() waits for a command from stdin, parses it and calls the appropriate
 /// function. Also intercepts EOF from stdin to ensure gracefully exiting if the
@@ -211,6 +231,10 @@ void UCI::loop(int argc, char* argv[]) {
 
           benchmark(pos, ss);
       }
+	  else if (token == "fen")
+	  {
+		  generateFenScore();
+	  }
       else
           sync_cout << "Unknown command: " << cmd << sync_endl;
 
